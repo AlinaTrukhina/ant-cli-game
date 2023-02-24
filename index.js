@@ -61,15 +61,34 @@ async function handleAnswer(isCorrect, palindromeQ) {
     const spinner = createSpinner('Checking...').start();
     await sleep();
 
-    if (isCorrect) {
+    if (isCorrect.isYes) {
         spinner.success({ text: 'Yes!'});
-        figlet(palindromeQ, (err, data) => {
-            console.log(gradient.fruit.multiline(data));
-        });
+        console.log(gradient.rainbow(figlet.textSync(palindromeQ, {
+            horizontalLayout: 'default',
+            verticalLayout: 'default',
+            width: 80,
+            whitespaceBreak: true
+        })));
+        console.log('');
         await askPlayAgain();
     } else {
         spinner.error({ text: 'No'});
+        console.log('');
+        console.log(gradient.passion(figlet.textSync(palindromeQ, {
+            horizontalLayout: 'default',
+            verticalLayout: 'default',
+            width: 80,
+            whitespaceBreak: true
+        })));
+        console.log(gradient.instagram(figlet.textSync(isCorrect.reversed, {
+            horizontalLayout: 'default',
+            verticalLayout: 'default',
+            width: 80,
+            whitespaceBreak: true
+        })));
+        console.log('');
         await askPlayAgain();
+        
     }
 }
 
@@ -104,17 +123,27 @@ function palindrome(palindromeQ) {
     const lowerStr = str.toLowerCase(); //convert to lower case
     const replaced = lowerStr.replace(/[^a-z0-9]/gi, ''); //remove everything but letters and numbers
   //	console.log(replaced);
-    if (replaced.length < 2) {
-        return false;
+    if (replaced.length < 1) {
+        return {isYes: false};
+    } else if (replaced.length === 1) {
+            return {reversed: replaced, isYes: false}
+    } else {
+        for (let i = 0; i < replaced.length/2; i++) {
+        if (replaced[i] === replaced[replaced.length - i - 1]) {
+    //      console.log(replaced[i]);
+        } else {
+            let reverseStr = '';
+            for (let i = replaced.length - 1; i >= 0; i--) {
+                reverseStr += replaced[i];
+            }
+            return {
+                reversed: reverseStr,
+                isYes: false
+            };
+        }
+        }
     }
-    for (let i = 0; i < replaced.length/2; i++) {
-      if (replaced[i] === replaced[replaced.length - i - 1]) {
-  //      console.log(replaced[i]);
-      } else {
-        return false;
-      }
-    }
-    return true;
+    return {isYes: true};
 }
 
 // Color Guessing game
