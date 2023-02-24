@@ -7,11 +7,9 @@ import gradient from "gradient-string";
 import inquirer from "inquirer";
 import { createSpinner } from "nanospinner";
 
-console.log(chalk.cyanBright('hello world'));
-
 let playerName;
 
-const sleep = (ms = 2000) => new Promise((r) => setTimeout(r, ms));
+const sleep = (ms = 1500) => new Promise((r) => setTimeout(r, ms));
 
 async function welcome() {
     const karaokeTitle = chalkAnimation.neon('Welcome, player!');
@@ -51,20 +49,23 @@ async function questionPalindrome() {
     const answers = await inquirer.prompt({
         name: 'palindrome_question',
         type: 'input',
-        message: 'I can check if a word is a palindrome!n\
-                    Enter your word:'
+        message: `I can check if a word is a palindrome!
+    Enter your word:`
     });
 
     const palindromeQ = answers.palindrome_question;
-    return handleAnswer(palindrome(palindromeQ));
+    return handleAnswer(palindrome(palindromeQ), palindromeQ);
 }
 
-async function handleAnswer(isCorrect) {
+async function handleAnswer(isCorrect, palindromeQ) {
     const spinner = createSpinner('Checking...').start();
     await sleep();
 
     if (isCorrect) {
         spinner.success({ text: 'Yes!'});
+        figlet(palindromeQ, (err, data) => {
+            console.log(gradient.fruit.multiline(data));
+        });
         await askPlayAgain();
     } else {
         spinner.error({ text: 'No'});
@@ -73,18 +74,18 @@ async function handleAnswer(isCorrect) {
 }
 
 async function askPlayAgain() {
-    const confirmed = await inquirer.prompt({
+    const answers = await inquirer.prompt({
         name: 'confirmedOr',
         type: 'confirm',
         message: 'Check another word?'
     });
 
-    const isConfirmed = answers.isConfirmed;
+    const isConfirmed = answers.confirmedOr;
     return playAgain(isConfirmed);
 }
 
-async function playAgain(isYes) {
-    if (isYes) {
+async function playAgain(isConfirmed) {
+    if (isConfirmed) {
         await questionPalindrome();
     } else {
         process.exit(1);
@@ -92,7 +93,7 @@ async function playAgain(isYes) {
 }
 
 // javaScript supports top-level await, no need to say 'async' before this!
-// await welcome();
+await welcome();
 // await askName();
 // await question1();
 await questionPalindrome();
@@ -103,7 +104,9 @@ function palindrome(palindromeQ) {
     const lowerStr = str.toLowerCase(); //convert to lower case
     const replaced = lowerStr.replace(/[^a-z0-9]/gi, ''); //remove everything but letters and numbers
   //	console.log(replaced);
-    
+    if (replaced.length < 2) {
+        return false;
+    }
     for (let i = 0; i < replaced.length/2; i++) {
       if (replaced[i] === replaced[replaced.length - i - 1]) {
   //      console.log(replaced[i]);
