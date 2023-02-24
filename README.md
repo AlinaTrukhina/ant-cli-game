@@ -8,10 +8,13 @@
 
 ## To play:
 
-In your terminal, run 
-npx ant-cli-game |
+In your terminal, run:
+npx ant-cli-game 
 
 You will be asked to install the package. Select 'y' to proceed. (This step only needs to be performed once.)
 
 Then, just follow the instructions in the game.
 
+## Screen Shot
+
+![alt text](https://github.com/alinatrukhina/ant-cli-game/raw/main/palindrome.png "Palindrome game")
