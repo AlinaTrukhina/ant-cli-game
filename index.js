@@ -8,8 +8,17 @@ import inquirer from "inquirer";
 import { createSpinner } from "nanospinner";
 
 let playerName;
+let target;
+
+const COLORS_ARRAY = ['black', 'brown' ,'gold', 'gray', 'green', 'magenta', 'orange', 'red', 'white', 'yellow', 'blue'];
 
 const sleep = (ms = 1500) => new Promise((r) => setTimeout(r, ms));
+
+// javaScript supports top-level await, no need to say 'async' before this!
+await welcome();
+// await askName();
+await question1();
+// await questionPalindrome();
 
 async function welcome() {
     const karaokeTitle = chalkAnimation.neon('Welcome, player!');
@@ -41,8 +50,15 @@ async function question1() {
             'guess the secret color'
         ],
     });
-    
-    return handleAnswer(gameChoice.question1 == 'check for palindrome');
+    return handleChoice(gameChoice.question1);
+}
+
+async function handleChoice(game) {
+    if (game == 'check for palindrome') {
+        await questionPalindrome();
+    } else if (game == 'guess the secret color') {
+        await colorGame();
+    }
 }
 
 async function questionPalindrome() {
@@ -70,7 +86,7 @@ async function handleAnswer(isCorrect, palindromeQ) {
             whitespaceBreak: true
         })));
         console.log('');
-        await askPlayAgain();
+        await askPlayAgain('palindrome');
     } else {
         spinner.error({ text: 'No'});
         console.log('');
@@ -87,35 +103,29 @@ async function handleAnswer(isCorrect, palindromeQ) {
             whitespaceBreak: true
         })));
         console.log('');
-        await askPlayAgain();
-        
+        await askPlayAgain('palindrome');
     }
 }
 
-async function askPlayAgain() {
+async function askPlayAgain(game) {
     const answers = await inquirer.prompt({
         name: 'confirmedOr',
         type: 'confirm',
-        message: 'Check another word?'
+        message: 'Go again?'
     });
-
     const isConfirmed = answers.confirmedOr;
-    return playAgain(isConfirmed);
+    return playAgain(isConfirmed, game);
 }
 
-async function playAgain(isConfirmed) {
-    if (isConfirmed) {
+async function playAgain(isConfirmed, game) {
+    if (isConfirmed && game == 'palindrome') {
         await questionPalindrome();
+    } else if (isConfirmed && game == 'color') {
+        await colorGame();
     } else {
         process.exit(1);
     }
 }
-
-// javaScript supports top-level await, no need to say 'async' before this!
-await welcome();
-// await askName();
-// await question1();
-await questionPalindrome();
 
 //
 function palindrome(palindromeQ) {
@@ -146,53 +156,42 @@ function palindrome(palindromeQ) {
     return {isYes: true};
 }
 
-// Color Guessing game
-// src="js/color-guessing-game.js"
-const COLORS_ARRAY = ['black', 'brown' ,'gold', 'gray', 'green', 'magenta', 'orange', 'red', 'white', 'yellow', 'blue'];
-let numTries = 0;
+// color guessing game
+async function colorGame() {
+    
+    const targetIndex = Math.floor(Math.random() * COLORS_ARRAY.length);
+    target = COLORS_ARRAY[targetIndex];
 
-function colorGame() {
-let guess = '';
-let correct = false;
-
-const targetIndex = Math.floor(Math.random() * COLORS_ARRAY.length);
-const target = COLORS_ARRAY[targetIndex];
-//        console.log(target); previously checked # of color
-
-do {
-    COLORS_ARRAY.sort();
-    guess = prompt('I am thinking of one of these colors:\n\n' + COLORS_ARRAY.join(', ') + '\n\nWhat color am I thinking of?\n');
-    if (guess === null) {
-        alert('You did not provide a guess.')
-        return;
-    }
-        
-    guessNumber = +guess;
-    numTries += 1;
-    correct = colorCheckGuess(guess, target);
-
-} while(!correct);
-alert('Congratulations! You guessed correctly! The color was ' + target + ' and the number of guesses was ' + numTries + ' .' );
-document.body.style.background = guess;
-
-
+    await askColor();
 }
 
-function colorCheckGuess(guess, target) {
-    let correct = false;
-    guess = guess.toLowerCase();
+async function askColor() {
+    const answers = await inquirer.prompt({
+        name: 'color_guess',
+        type: 'list',
+        message: 'I am thinking of one of these colors. What color am I thinking of?',
+        choices: ['black', 'brown' ,'gold', 'gray', 'green', 'magenta', 
+        'orange', 'red', 'white', 'yellow', 'blue']
+    });
+    let colored = chalkPipe(answers.color_guess);
+    return chalkPipe(answers.color_guess)(handleColorAnswer(answers.color_guess));
+}
 
-    if (!COLORS_ARRAY.includes(guess)) {
-        alert('Your color is not on the list. Your number of guesses is ' + numTries + ' .');
-    }
-    else if (guess > target) {
-        alert('Your color guess is alphabetically higher than my color. Your number of guesses is ' + numTries + ' .');
+async function handleColorAnswer(guess) {
+    const spinner = createSpinner('Checking...').start();
+    await sleep();
+    
+    if (guess > target) {
+        spinner.error({ text: 'Your color guess is alphabetically higher than my color.'});
+        
+        await askColor();
     }
     else if (guess < target) {
-        alert('Your color guess is alphabetically lower than my color. Your number of guesses is ' + numTries + ' .');
+        spinner.error({ text: 'Your color guess is alphabetically lower than my color.'});
+        await askColor();
     }
     else {
-        correct = true;
+        spinner.success({ text: 'You got it right!'});
+        await askPlayAgain('color');
     }
-    return correct;
 }

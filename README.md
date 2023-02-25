@@ -9,7 +9,10 @@
 ## To play:
 
 In your terminal, run:
-npx ant-cli-game 
+
+```sh
+npx ant-cli-game
+```
 
 You will be asked to install the package. Select 'y' to proceed. (This step only needs to be performed once.)
 
