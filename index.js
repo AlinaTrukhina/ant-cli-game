@@ -47,7 +47,8 @@ async function question1() {
         message: 'choose what to play',
         choices: [
             'check for palindrome',
-            'guess the secret color'
+            'guess the secret color',
+            'blackjack'
         ],
     });
     return handleChoice(gameChoice.question1);
@@ -58,6 +59,8 @@ async function handleChoice(game) {
         await questionPalindrome();
     } else if (game == 'guess the secret color') {
         await colorGame();
+    } else if (game == 'blackjack') {
+        await blackjackGame();
     }
 }
 
@@ -122,6 +125,8 @@ async function playAgain(isConfirmed, game) {
         await questionPalindrome();
     } else if (isConfirmed && game == 'color') {
         await colorGame();
+    } else if (isConfirmed && game == 'blackjack') {
+        await blackjackGame();
     } else {
         process.exit(1);
     }
@@ -169,7 +174,8 @@ async function askColor() {
     const answers = await inquirer.prompt({
         name: 'color_guess',
         type: 'list',
-        message: 'I am thinking of one of these colors. What color am I thinking of?',
+        message: `I am thinking of one of these colors. 
+        What color am I thinking of?`,
         choices: ['black', 'brown' ,'gold', 'gray', 'green', 'magenta', 
         'orange', 'red', 'white', 'yellow', 'blue']
     });
@@ -198,4 +204,148 @@ async function handleColorAnswer(guess) {
 
 
 // blackjack game
-let cards = [['one hearts', 'one diamonds', 'one spades', 'one clubs']]
+function blackjackGame() {
+let cards = [
+    { card: 'one hearts', value: 1 },
+    { card: 'one diamonds', value: 1 },
+    { card: 'one spades', value: 1 },
+    { card: 'one clubs', value: 1 },
+    { card: 'two hearts', value: 2 },
+    { card: 'two diamonds', value: 2 },
+    { card: 'two spades', value: 2 },
+    { card: 'two clubs', value: 2 },
+    { card: 'three hearts', value: 3 },
+    { card: 'three diamonds', value: 3 },
+    { card: 'three spades', value: 3 },
+    { card: 'three clubs', value: 3 },
+    { card: 'four hearts', value: 4 },
+    { card: 'four diamonds', value: 4 },
+    { card: 'four spades', value: 4 },
+    { card: 'four clubs', value: 4 },
+    { card: 'five hearts', value: 5 },
+    { card: 'five diamonds', value: 5 },
+    { card: 'five spades', value: 5 },
+    { card: 'five clubs', value: 5 },
+    { card: 'six hearts', value: 6 },
+    { card: 'six diamonds', value: 6 },
+    { card: 'six spades', value: 6 },
+    { card: 'six clubs', value: 6 },
+    { card: 'seven hearts', value: 7 },
+    { card: 'seven diamonds', value: 7 },
+    { card: 'seven spades', value: 7 },
+    { card: 'seven clubs', value: 7 },
+    { card: 'eight hearts', value: 8 },
+    { card: 'eight diamonds', value: 8 },
+    { card: 'eight spades', value: 8 },
+    { card: 'eight clubs', value: 8 },
+    { card: 'nine hearts', value: 9 },
+    { card: 'nine diamonds', value: 9 },
+    { card: 'nine spades', value: 9 },
+    { card: 'nine clubs', value: 9 },
+    { card: 'ten hearts', value: 10 },
+    { card: 'ten diamonds', value: 10 },
+    { card: 'ten spades', value: 10 },
+    { card: 'ten clubs', value: 10 },
+    { card: 'jack hearts', value: 10 },
+    { card: 'jack diamonds', value: 10 },
+    { card: 'jack spades', value: 10 },
+    { card: 'jack clubs', value: 10 },
+    { card: 'queen hearts', value: 10 },
+    { card: 'queen diamonds', value: 10 },
+    { card: 'queen spades', value: 10 },
+    { card: 'queen clubs', value: 10 },
+    { card: 'king hearts', value: 10 },
+    { card: 'king diamonds', value: 10 },
+    { card: 'king spades', value: 10 },
+    { card: 'king clubs', value: 10 },
+    { card: 'ace', value: 11 }
+];
+
+let playerCards = [];
+let dealerCards = [];
+
+let playerPoints = 0;
+let dealerPoints = 0;
+
+// game starts
+
+// you are dealt 2 cards face up - show total
+// dealer is dealt 1 card face up and 1 card face down - show total on face up card
+
+// fn checkScores()
+// if you have < 21 : ask if want to hit or stay
+// if you have > 21 : you lose; ask if you want to play again
+// if you have 21 : reveal dealer's cards, if he has 21 as well, it's a draw. otherwise, you win
+
+// after every turn, call fn checkScores()
+
+// get random card helper function
+function getCard(who) {
+    const cardIndex = Math.floor(Math.random() * cards.length);
+    const newCard = cards[cardIndex];
+    cards.splice(cardIndex, 1);
+    who.push(newCard);
+
+    playerPoints = playerCards.reduce((a, b) => a + b.value, 0,);
+    dealerPoints = dealerCards.reduce((a, b) => a + b.value, 0,);
+    
+    return who;
+}
+
+async function dealBlackjack() {
+    await (getCard(playerCards));
+    await (getCard(playerCards));
+
+    await (getCard(dealerCards));
+    await (getCard(dealerCards));
+
+    await checkScores();
+}
+
+    async function hitOrStay() {
+        const answers = await inquirer.prompt({
+            name: 'hit_stay',
+            type: 'list',
+            message: 'Hit or stay?',
+            choices: ['Hit me!', 'Stay']
+        });
+        if (answers.hit_stay == 'Hit me!') {
+            await getCard(playerCards);
+            if (dealerPoints < 21) {
+                await getCard(dealerCards);
+            }
+            await checkScores();
+        } else if (answers.hit_stay =='Stay') {
+            await getCard(dealerCards);
+            await checkScores();
+        }
+    }
+
+    async function checkScores() {
+        console.log(playerCards, 'your points:', playerPoints);
+        console.log(dealerCards, 'dealer points:', dealerPoints);
+
+        if (playerPoints == 21 && dealerPoints == 21) {
+            console.log('draw');
+            await askPlayAgain('blackjack');
+        } else if (dealerPoints > 21 ) {
+            console.log('you win');
+            await askPlayAgain('blackjack');
+        } else if (playerPoints == 21 && dealerPoints < 21) {
+            console.log('dealer draws');
+            await (getCard(dealerCards));
+            await checkScores();
+        } else if (playerPoints < 21 && dealerPoints < 21) {
+            await hitOrStay();
+            await (getCard(dealerCards));
+        } else if (playerPoints < 21 && dealerPoints == 21) {
+            console.log('the house wins');
+            await askPlayAgain('blackjack');
+        } else {
+            console.log('the house wins');
+            await askPlayAgain('blackjack');
+        }
+    }
+
+    dealBlackjack();
+}
