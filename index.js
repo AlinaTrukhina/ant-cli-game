@@ -195,3 +195,7 @@ async function handleColorAnswer(guess) {
         await askPlayAgain('color');
     }
 }
+
+
+// blackjack game
+let cards = [['one hearts', 'one diamonds', 'one spades', 'one clubs']]
