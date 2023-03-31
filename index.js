@@ -174,16 +174,18 @@ async function colorGame() {
             type: 'list',
             message: `I am thinking of one of these colors. 
             What color am I thinking of?`,
-            choices: ['black', 'brown' ,'gold', 'gray', 'green', 'magenta', 
+            choices: ['black', 'brown', 'gold', 'gray', 'green', 'magenta', 
             'orange', 'red', 'white', 'yellow', 'blue']
         });
-        let colored = chalkPipe(answers.color_guess);
-        return chalkPipe(answers.color_guess)(handleColorAnswer(answers.color_guess));
+        let guess = answers.color_guess;
+        return chalkPipe(answers.color_guess)(handleColorAnswer(guess));
     }
 
     async function handleColorAnswer(guess) {
         const spinner = createSpinner('Checking...').start();
         await sleep();
+        console.log(target);
+        console.log(guess);
         
         if (guess > target) {
             spinner.error({ text: 'Your color guess is alphabetically higher than my color.'});
