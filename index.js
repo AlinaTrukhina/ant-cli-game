@@ -184,8 +184,6 @@ async function colorGame() {
     async function handleColorAnswer(guess) {
         const spinner = createSpinner('Checking...').start();
         await sleep();
-        console.log(target);
-        console.log(guess);
         
         if (guess > target) {
             spinner.error({ text: 'Your color guess is alphabetically higher than my color.'});
